@@ -479,6 +479,8 @@ func stringify(val interface{}) string {
 		return uv.String()
 	case time.Time:
 		return uv.UTC().Format(time.RFC3339Nano)
+	case []string:
+		return strings.Join(uv, ",")
 	}
 
 	if stringer, ok := val.(fmt.Stringer); ok {
