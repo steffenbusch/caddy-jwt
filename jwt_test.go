@@ -742,6 +742,7 @@ func TestAuthenticate_PopulateUserMetadata(t *testing.T) {
 			"IsAdmin":                        "is_admin",
 			"registerTime":                   "registered_at",
 			"absent":                         "absent", // not found in JWT payload, final ""
+			"aud":                            "aud",    // standard claim, final "aud1,aud2,aud3"
 			"groups":                         "groups", // supported array type, final "csgo,dota2"
 			"settings.role":                  "role",   // supported nested claim, final "admin"
 			"settings.payout.paypal.enabled": "is_paypal_enabled",
@@ -755,6 +756,7 @@ func TestAuthenticate_PopulateUserMetadata(t *testing.T) {
 		"jti":          "a976475a-186a-4c1f-b182-95b3f886e2b4",
 		"sub":          "ggicci",
 		"IsAdmin":      true,
+		"aud":          []string{"aud1", "aud2", "aud3"},
 		"registerTime": time.Date(2000, 1, 2, 15, 23, 18, 0, time.UTC),
 		"groups":       []string{"csgo", "dota2"},
 		"settings": map[string]interface{}{
@@ -777,6 +779,7 @@ func TestAuthenticate_PopulateUserMetadata(t *testing.T) {
 	assert.Equal(t, "true", gotUser.Metadata["is_admin"])
 	assert.Equal(t, "2000-01-02T15:23:18Z", gotUser.Metadata["registered_at"])
 	assert.Equal(t, "", gotUser.Metadata["absent"])
+	assert.Equal(t, "aud1,aud2,aud3", gotUser.Metadata["aud"])
 	assert.Equal(t, "csgo,dota2", gotUser.Metadata["groups"])
 	assert.Equal(t, "admin", gotUser.Metadata["role"])
 	assert.Equal(t, "true", gotUser.Metadata["is_paypal_enabled"])
@@ -801,6 +804,7 @@ func Test_stringify(t *testing.T) {
 		{false, "false"},
 		{json.Number("1991"), "1991"},
 		{now, now.UTC().Format(time.RFC3339Nano)},
+		{[]string{"aud1", "aud2"}, "aud1,aud2"},
 		{[]int{1, 2, 3}, ""},                // unsupported array type
 		{ThingNotStringer{}, ""},            // unsupported custom type
 		{ThingIsStringer{}, "i'm stringer"}, // support fmt.Stringer interface
